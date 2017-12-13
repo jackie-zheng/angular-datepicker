@@ -754,6 +754,11 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         attrs.maxDate = date ? date.format() : date;
         maxValid = moment.isMoment(date);
       }
+      function isNotRequired(value) {
+        var required = $parse(attrs.ngRequired)(scope) || false;
+        //if a value is not required, and no value is specified pass the min check.
+        return (!required && !value);
+      }
 
       ngModel.$formatters.push(formatter);
       ngModel.$parsers.unshift(parser);
@@ -762,6 +767,9 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         setMin(datePickerUtils.findParam(scope, attrs.minDate));
 
         ngModel.$validators.min = function (value) {
+          if (isNotRequired(value)) {
+            return true
+          }
           //If we don't have a min / max value, then any value is valid.
           return minValid ? moment.isMoment(value) && (minDate.isSame(value) || minDate.isBefore(value)) : true;
         };
@@ -771,6 +779,9 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
         setMax(datePickerUtils.findParam(scope, attrs.maxDate));
 
         ngModel.$validators.max = function (value) {
+          if (isNotRequired(value)) {
+            return true
+          }
           return maxValid ? moment.isMoment(value) && (maxDate.isSame(value) || maxDate.isAfter(value)) : true;
         };
       }
@@ -868,7 +879,7 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
           });
 
           scope.$on('hidePicker', function () {
-            element.blur();
+            element.triggerHandler('blur');
           });
 
           scope.$on('$destroy', clear);
