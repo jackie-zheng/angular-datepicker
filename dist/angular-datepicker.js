@@ -879,7 +879,7 @@ Module.directive('dateTime', ['$compile', '$document', '$filter', 'dateTimeConfi
           });
 
           scope.$on('hidePicker', function () {
-            element.triggerHandler('blur');
+            element.blur();
           });
 
           scope.$on('$destroy', clear);
